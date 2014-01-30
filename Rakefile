@@ -17,8 +17,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "dictionary-rb"
   gem.homepage = "http://github.com/AnkurGel/dictionary-rb"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{Provides urban-dictionary and dictionary-reference meanings.}
+  gem.description = %Q{Provides urban-dictionary and dictionary-reference meanings. Equipped with CLI interface and general-purpose library.}
   gem.email = "ankurgel@gmail.com"
   gem.authors = ["Ankur Goel"]
   # dependencies defined in Gemfile
