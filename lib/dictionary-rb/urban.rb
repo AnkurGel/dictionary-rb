@@ -12,23 +12,25 @@ module DictionaryRB
       url = PREFIX + CGI::escape(@word)
       @doc = Nokogiri::HTML(open(url))
 
-      node = @doc.css('div#outer.container div.row.three_columns div.span6 div#content div.box div.inner div.meaning')
-      result = node.text.split("\n").reject(&:empty?)
-      @meaning = result.first
-      result
+      nodes = @doc.css('div#outer.container div.row.three_columns div.span6 div#content div.box div.inner div.meaning')
+      results = nodes.text.split("\n").reject(&:empty?)
+      @meaning = results.first
+      results
     end
 
     def examples
       @doc ||= Nokogiri::HTML(open(PREFIX + CGI::escape(@word)))
-      node = @doc.css('div#outer.container div.row.three_columns div.span6 div#content div.box div.inner div.example')
-      node.text.split("\n").reject(&:empty?)
+      nodes = @doc.css('div#outer.container div.row.three_columns div.span6 div#content div.box div.inner div.example')
+      nodes.text.split("\n").reject(&:empty?)
     end
 
     def similar_words
       @doc ||= Nokogiri::HTML(open(PREFIX + CGI::escape(@word)))
-      node = @doc.css('div#outer.container div.row.three_columns div.span6 div#content div.tags a')
-      node.map(&:text).reject(&:empty?)
+      nodes = @doc.css('div#outer.container div.row.three_columns div.span6 div#content div.tags a')
+      nodes.map(&:text).reject(&:empty?)
     end
+
+    alias_method :synonyms, :similar_words
 
     def to_s
       sprintf("Urban Dictionary (word: %s, meaning: %s)", @word, @meaning)
