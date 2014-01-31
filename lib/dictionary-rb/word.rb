@@ -1,17 +1,36 @@
 module DictionaryRB
   class Word
     attr_reader :word
-    attr_reader :urban, :meaning
-    attr_reader :urbans, :meanings
+    attr_reader :urban, :dictionary
 
     def initialize(word)
       @word = word
     end
 
-    def dictionary_meaning
-
+    def dictionary
+      @dictionary ||= Dictionary.new(@word)
     end
 
+    def dictionary_meaning
+      if @dictionary_meaning.nil?
+        @dictionary = Dictionary.new(@word)
+        meanings = @dictionary.meanings
+        if meanings.is_a? Array and not meanings.empty?
+          @dictionary_meanings = meanings
+          @dictionary_meaning = @dictionary.meaning
+        end
+      end
+      @dictionary_meaning
+    end
+
+    def dictionary_meanings
+      if @dictionary_meanings.nil?
+        dictionary_meaning
+      end
+      @dictionary_meanings
+    end
+
+    #Urban
     def urban
       @urban ||= Urban.new(@word)
     end
@@ -34,6 +53,9 @@ module DictionaryRB
       end
       @urban_meanings
     end
+
+    alias meaning dictionary_meaning
+    alias meanings dictionary_meanings
 
     def to_s
       sprintf("%s", word)
