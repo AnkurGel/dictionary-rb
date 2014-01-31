@@ -1,32 +1,45 @@
 module DictionaryRB
   class Dictionary
     attr_reader :word, :meaning
-    PREFIX = "http://www.thefreedictionary.com/"
+    PREFIX = "http://dictionary.reference.com/browse/"
+
+
 
     def initialize(word)
       @word = word if word.is_a? String
       @word = word.word if word.is_a? Word
+      @examples = Array.new
     end
 
     def meanings
       url = PREFIX + CGI::escape(@word)
+      #we don't want to hit & parse the page,
+      #till the user doesn't ask for any meaning/example
       @doc = Nokogiri::HTML(open(url))
 
-      nodes = @doc.css('.ds-list')
-      result = nodes.map do |node|
-        unless node.children[0].text.strip.scan(/\d/).empty?
-          node.children[1].text.strip
-        else
-          node.children[2].text.strip
-        end
-      end.reject(&:empty?).first(8)
-      @meaning = result.first
-      result
+      nodes = [@doc.css('.luna-Ent .dndata')]
+      nodes = [@doc.css('.pbk .luna-Ent')] if nodes.flatten.empty?
+
+      (nodes ||= []).push(@doc.css(".td3n2")).flatten!
+      results = nodes.map(&:text).map do |result|
+        result.split ':'
+      end.map { |x| x[0].split(/[.;]/) }.flatten.map(&:strip).reject(&:empty?)
+      @meaning = results.first
+      results
     end
 
     def examples
-
+      @doc ||= Nokogiri::HTML(open(PREFIX + CGI::escape(@word)))
+      @example_results ||= @doc.css('.exsentences').map{ |x| x.text.strip }.reject(&:empty?).flatten
+      @example_results #to prevent above computations on repeated call on object
     end
+
+    def similar_words
+      @doc ||= Nokogiri::HTML(open(PREFIX + CGI::escape(@word)))
+      @similar_words = @doc.css("#relatedwords .fla a").map(&:text).reject(&:empty?)
+      @similar_words
+    end
+    alias_method :synonyms, :similar_words
 
     def to_s
       sprintf("Free Dictionary (word: %s, meaning: %s", @word, @meaning)
