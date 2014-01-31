@@ -11,6 +11,7 @@ group :development do
   gem "rdoc", "~> 3.12"
   gem "bundler", "~> 1.0"
   gem "jeweler", "~> 1.8.7"
-  gem 'debugger'
-  gem 'nokogiri'
+  gem "nokogiri"
+  gem "thor"
+  gem "highline"
 end
