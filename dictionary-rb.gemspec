@@ -29,6 +29,7 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "bin/dictionary",
+    "dictionary-rb.gemspec",
     "lib/dictionary-rb.rb",
     "lib/dictionary-rb/dictionary.rb",
     "lib/dictionary-rb/string_patch.rb",
@@ -55,6 +56,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<nokogiri>, [">= 0"])
       s.add_development_dependency(%q<thor>, [">= 0"])
       s.add_development_dependency(%q<highline>, [">= 0"])
+      s.add_development_dependency(%q<redcarpet>, [">= 0"])
     else
       s.add_dependency(%q<rspec>, ["~> 2.8.0"])
       s.add_dependency(%q<yard>, ["~> 0.7"])
@@ -64,6 +66,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<nokogiri>, [">= 0"])
       s.add_dependency(%q<thor>, [">= 0"])
       s.add_dependency(%q<highline>, [">= 0"])
+      s.add_dependency(%q<redcarpet>, [">= 0"])
     end
   else
     s.add_dependency(%q<rspec>, ["~> 2.8.0"])
@@ -74,6 +77,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<nokogiri>, [">= 0"])
     s.add_dependency(%q<thor>, [">= 0"])
     s.add_dependency(%q<highline>, [">= 0"])
+    s.add_dependency(%q<redcarpet>, [">= 0"])
   end
 end
 
