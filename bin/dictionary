@@ -53,9 +53,9 @@ class DictionaryRB_CLI < Thor
   def files_to_words(files)
     files.map do |file|
       file_path = File.expand_path(file)
-      raise ArgumentError, say("Error: File #{file_path} doesn't exists!") unless File.exists?(file_path)
+      raise ArgumentError, say("Error: File #{file_path} doesn't exists!", :red) unless File.exists?(file_path)
       File.open(file_path, 'rb').read.split("\n").map do |word|
-        raise ArgumentError, "Error: Not a valid word - #{word}" unless word.strip.match(/^\w+$/)
+        raise ArgumentError, "Error: Not a valid word - #{word}, :red" unless word.strip.match(/^\w+$/)
         word
       end
     end.flatten.uniq
@@ -63,7 +63,7 @@ class DictionaryRB_CLI < Thor
 
   def sanitize_options_words(words)
     words.map do |word|
-      raise ArgumentError, "Error: Not a valid word - #{word}" unless word.strip.match(/^\w+$/)
+      raise ArgumentError, "Error: Not a valid word - #{word}, :red" unless word.strip.match(/^\w+$/)
       word
     end
   end
