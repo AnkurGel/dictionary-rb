@@ -1,1 +1,74 @@
-require 'thor'
+#!/usr/bin/env ruby
+require "thor"
+require "dictionary-rb"
+
+class DictionaryRB_CLI < Thor
+
+  desc "meaning WORD", "gives dictionary meaning of the WORD"
+  option :words, :desc => "Specify multiple words in succession", :type => :array
+  option :file, :type => :boolean, :desc => "Pass file(s) as argument(s) instead."
+  option :example, :type => :boolean, :desc => "Generate an example too."
+  option :similar, :type => :boolean, :desc => "Generate a synonym too."
+  def meaning(word=nil)
+    words = options_simplifier(word, options)
+    words.each do |word|
+      obj = DictionaryRB::Word.new(word)
+      meaning = obj.meaning
+      example = options[:example] ? " - " + obj.dictionary.examples.first : ""
+      similar = options[:similar] ? " - " + obj.dictionary.similar_words.first : ""
+      say "#{word} - #{meaning}#{example}#{similar}"
+    end
+  end
+
+
+
+  desc "similar WORD", "gives syonyms of word(s)"
+  option :words, :desc => "Specify multiple words in succession"
+  option :file, :type => :boolean, :desc => "Pass file(s) as arugment(s) instead."
+  def similar(word=nil)
+
+  end
+
+  desc "examples WORD", "gives examples of word(s)"
+  option :words, :desc => "Specify multiple words in succession"
+  option :file, :type => :boolean, :desc => "Pass file(s) as arugment(s) instead."
+  def examples(word=nil)
+
+  end
+
+
+  private
+  def options_simplifier(word, options)
+    if options[:file]
+      files_path = options[:words] ? options[:words] : [word]
+      words = files_to_words files_path
+    elsif options[:words] #no 'file' flag is found, but 'words' options are
+      words = sanitize_options_words(options[:words])
+    else
+      words = [word]
+    end
+    words
+  end
+
+  def files_to_words(files)
+    files.map do |file|
+      file_path = File.expand_path(file)
+      raise ArgumentError, say("Error: File #{file_path} doesn't exists!") unless File.exists?(file_path)
+      File.open(file_path, 'rb').read.split("\n").map do |word|
+        raise ArgumentError, "Error: Not a valid word - #{word}" unless word.strip.match(/^\w+$/)
+        word
+      end
+    end.flatten.uniq
+  end
+
+  def sanitize_options_words(words)
+    words.map do |word|
+      raise ArgumentError, "Error: Not a valid word - #{word}" unless word.strip.match(/^\w+$/)
+      word
+    end
+  end
+
+
+end
+
+DictionaryRB_CLI.start
