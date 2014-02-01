@@ -14,4 +14,5 @@ group :development do
   gem "nokogiri"
   gem "thor"
   gem "highline"
+  gem "redcarpet"
 end
