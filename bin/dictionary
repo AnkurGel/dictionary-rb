@@ -32,7 +32,7 @@ class DictionaryRB_CLI < Thor
 
 
   desc "similar WORD", "gives syonyms of word(s)"
-  option :words, :desc => "Specify multiple WORDS in succession"
+  option :words, :desc => "Specify multiple WORDS in succession", :type => :array
   option :file, :type => :boolean, :desc => "Pass file(s) as arugment(s) instead."
   option :urban, :type => :boolean, :desc => "Give similar word from Urban Dictionary"
   option :count, :type => :numeric, :desc => "Gives N similar words"
@@ -53,7 +53,7 @@ class DictionaryRB_CLI < Thor
 
 
   desc "examples WORD", "gives examples of word(s)"
-  option :words, :desc => "Specify multiple WODS in succession"
+  option :words, :desc => "Specify multiple WODS in succession", :type => :array
   option :file, :type => :boolean, :desc => "Pass file(s) as arugment(s) instead."
   option :urban, :type => :boolean, :desc => "Give example from Urban Dictionary"
   option :count, :type => :numeric, :desc => "Given N examples"
@@ -106,7 +106,7 @@ class DictionaryRB_CLI < Thor
       file_path = File.expand_path(file)
       raise ArgumentError, say("Error: File #{file_path} doesn't exists!", :red) unless File.exists?(file_path)
       File.open(file_path, 'rb').read.split("\n").map do |word|
-        raise ArgumentError, "Error: Not a valid word - #{word}, :red" unless word.strip.match(/^\w+$/)
+        raise ArgumentError, "Error: Not a valid word - #{word}, :red" unless word.strip.match(/^[\w\s]+$/)
         word
       end
     end.flatten.uniq
@@ -114,7 +114,7 @@ class DictionaryRB_CLI < Thor
 
   def sanitize_options_words(words)
     words.map do |word|
-      raise ArgumentError, "Error: Not a valid word - #{word}, :red" unless word.strip.match(/^\w+$/)
+      raise ArgumentError, "Error: Not a valid word - #{word}, :red" unless word.strip.match(/^[\w\s]+$/)
       word
     end
   end
