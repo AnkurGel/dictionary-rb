@@ -5,7 +5,7 @@ require "dictionary-rb"
 class DictionaryRB_CLI < Thor
 
   desc "meaning WORD", "gives dictionary meaning of the WORD"
-  option :words, :desc => "Specify multiple words in succession", :type => :array
+  option :words, :desc => "Specify multiple WORDS in succession", :type => :array
   option :file, :type => :boolean, :desc => "Pass file(s) as argument(s) instead."
   option :example, :type => :boolean, :desc => "Generate an example too."
   option :similar, :type => :boolean, :desc => "Generate a synonym too."
@@ -15,7 +15,7 @@ class DictionaryRB_CLI < Thor
 
 
   desc "urban WORD", "gives UrbanDictionary meaning of the WORD"
-  option :words, :desc => "Specify multiple words in succession", :type => :array
+  option :words, :desc => "Specify multiple WORDS in succession", :type => :array
   option :file, :type => :boolean, :desc => "Pass file(s) as argument(s) instead."
   option :example, :type => :boolean, :desc => "Generate an example too."
   option :similar, :type => :boolean, :desc => "Generate a synonym too."
@@ -24,13 +24,22 @@ class DictionaryRB_CLI < Thor
   end
 
 
-
   desc "similar WORD", "gives syonyms of word(s)"
-  option :words, :desc => "Specify multiple words in succession"
+  option :words, :desc => "Specify multiple WORDS in succession"
   option :file, :type => :boolean, :desc => "Pass file(s) as arugment(s) instead."
+  option :urban, :type => :boolean, :desc => "Give similar word from Urban Dictionary"
+  option :count, :type => :numeric, :desc => "Gives N similar words"
   def similar(word=nil)
     words = options_simplifier(word, options)
+    method = options[:urban] ? :urban : :dictionary
+    words.each do |word|
+      obj = DictionaryRB::Word.new(word).method(method).call
+      words = obj.similar_words.shuffle.first(
+          options[:count] ? options[:count] : 1)
+      say "#{word} is similar to - #{words.join(", ")}"
+    end
   end
+
 
   desc "examples WORD", "gives examples of word(s)"
   option :words, :desc => "Specify multiple words in succession"
