@@ -48,7 +48,7 @@ class DictionaryRB_CLI < Thor
       say "#{word} is similar to - #{results.join(', ')}"
       write_file.puts("#{word} is similar to - #{results.join(', ')}") if write_file
     end
-    write_file.close
+    write_file.close if write_file
   end
 
 
