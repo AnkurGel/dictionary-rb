@@ -1,9 +1,7 @@
 module DictionaryRB
   class Dictionary
-    attr_reader :word, :meaning
+    attr_reader :word
     PREFIX = "http://dictionary.reference.com/browse/"
-
-
 
     def initialize(word)
       @word = word if word.is_a? String
@@ -13,8 +11,6 @@ module DictionaryRB
 
     def meanings
       url = PREFIX + CGI::escape(@word)
-      #we don't want to hit & parse the page,
-      #till the user doesn't ask for any meaning/example
       @doc = Nokogiri::HTML(open(url))
 
       nodes = [@doc.css('.luna-Ent .dndata')]
@@ -26,6 +22,10 @@ module DictionaryRB
       end.map { |x| x[0].split(/[.;]/) }.flatten.map(&:strip).reject(&:empty?)
       @meaning = results.first
       results
+    end
+
+    def meaning
+      meanings.first
     end
 
     def examples

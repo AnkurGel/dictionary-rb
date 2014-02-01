@@ -1,6 +1,6 @@
 module DictionaryRB
   class Urban
-    attr_reader :word, :meaning
+    attr_reader :word
     PREFIX = "http://www.urbandictionary.com/define.php?term="
 
     def initialize(word)
@@ -8,9 +8,17 @@ module DictionaryRB
       @word = word.word if word.is_a? Word
     end
 
+    def meaning
+      url = PREFIX + CGI::escape(@word)
+      @doc ||= Nokogiri::HTML(open(url))
+      nodes = @doc.css('div#outer.container div.row.three_columns div.span6 div#content div.box div.inner div.meaning')
+      results = nodes.text.split("\n").reject(&:empty?)
+      results.first
+    end
+
     def meanings
       url = PREFIX + CGI::escape(@word)
-      @doc = Nokogiri::HTML(open(url))
+      @doc ||= Nokogiri::HTML(open(url))
 
       nodes = @doc.css('div#outer.container div.row.three_columns div.span6 div#content div.box div.inner div.meaning')
       results = nodes.text.split("\n").reject(&:empty?)

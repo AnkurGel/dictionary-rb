@@ -10,14 +10,17 @@ class DictionaryRB_CLI < Thor
   option :example, :type => :boolean, :desc => "Generate an example too."
   option :similar, :type => :boolean, :desc => "Generate a synonym too."
   def meaning(word=nil)
-    words = options_simplifier(word, options)
-    words.each do |word|
-      obj = DictionaryRB::Word.new(word)
-      meaning = obj.meaning
-      example = options[:example] ? " - " + obj.dictionary.examples.first : ""
-      similar = options[:similar] ? " - " + obj.dictionary.similar_words.first : ""
-      say "#{word} - #{meaning}#{example}#{similar}"
-    end
+    urban_or_dictionary_meaning(word, options, :dictionary)
+  end
+
+
+  desc "urban WORD", "gives UrbanDictionary meaning of the WORD"
+  option :words, :desc => "Specify multiple words in succession", :type => :array
+  option :file, :type => :boolean, :desc => "Pass file(s) as argument(s) instead."
+  option :example, :type => :boolean, :desc => "Generate an example too."
+  option :similar, :type => :boolean, :desc => "Generate a synonym too."
+  def urban(word=nil)
+    urban_or_dictionary_meaning(word, options, :urban)
   end
 
 
@@ -26,7 +29,7 @@ class DictionaryRB_CLI < Thor
   option :words, :desc => "Specify multiple words in succession"
   option :file, :type => :boolean, :desc => "Pass file(s) as arugment(s) instead."
   def similar(word=nil)
-
+    words = options_simplifier(word, options)
   end
 
   desc "examples WORD", "gives examples of word(s)"
@@ -48,6 +51,17 @@ class DictionaryRB_CLI < Thor
       words = [word]
     end
     words
+  end
+
+  def urban_or_dictionary_meaning(word, options, method)
+    words = options_simplifier(word, options)
+    words.each do |word|
+      obj = DictionaryRB::Word.new(word).method(method).call
+      meaning = obj.meaning
+      example = options[:example] ? " - " + obj.examples.first : ""
+      similar = options[:similar] ? " - " + obj.similar_words.first : ""
+      say "#{word} - #{meaning}#{example}#{similar}"
+    end
   end
 
   def files_to_words(files)
