@@ -1,6 +1,6 @@
 = dictionary-rb
 
-Description goes here.
+Provides meanings, similar words, usage examples from {Urban Dictionary}[http://urbandictionary.com] and {Dictionary Reference}[http://dictionary.reference.com/] with CLI support.
 
 == Contributing to dictionary-rb
  
