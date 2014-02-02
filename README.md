@@ -6,6 +6,10 @@ Provides meanings, similar words, usage examples from [Urban Dictionary](http://
 
 `gem install dictionary-rb`
 
+
+##Documentation
+Detailed documentation is [available here](http://rubydoc.info/gems/dictionary-rb).
+
 ##Usage
 --------
 
@@ -113,7 +117,7 @@ boast is similar to - annoying, humble
 ##Contribution
 
 * Fork the [repository](https://github.com/AnkurGel/dictionary-rb)
-* Have a look at the [API Documentation](). It is pretty well documented with explanations of all methods and modules.
+* Have a look at the [API Documentation](http://rubydoc.info/gems/dictionary-rb). It is pretty well documented with explanations of all methods and modules.
 * Do your changes in your remote branch
 * Create a pull request.
 * Earn a beer! :)
