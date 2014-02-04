@@ -1,6 +1,5 @@
 require 'open-uri'
 require 'nokogiri'
-require 'debugger'
 require 'cgi'
 require 'dictionary-rb/word'
 require 'dictionary-rb/dictionary'
