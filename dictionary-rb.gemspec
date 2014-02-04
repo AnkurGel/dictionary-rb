@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Ankur Goel"]
-  s.date = "2014-02-01"
+  s.date = "2014-02-04"
   s.description = "Provides urban-dictionary and dictionary-reference meanings. Equipped with CLI interface and general-purpose library."
   s.email = "ankurgel@gmail.com"
   s.executables = ["dictionary"]
