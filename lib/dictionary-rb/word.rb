@@ -108,7 +108,7 @@ module DictionaryRB
     alias meanings dictionary_meanings
 
     def to_s
-      sprintf("%s", word)
+      sprintf("%s", @word)
     end
   end
 end

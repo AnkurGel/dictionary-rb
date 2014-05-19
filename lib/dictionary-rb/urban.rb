@@ -40,8 +40,9 @@ module DictionaryRB
       url = PREFIX + CGI::escape(@word)
       @doc ||= Nokogiri::HTML(open(url))
 
-      nodes = @doc.css('div#outer.container div.row.three_columns div.span6 div#content div.box div.inner div.meaning')
-      results = nodes.text.split("\n").reject(&:empty?)
+      #nodes = @doc.css('div#outer.container div.row.three_columns div.span6 div#content div.box div.inner div.meaning')
+      nodes = @doc.css('.meaning')
+      results = nodes.map(&:text).map(&:strip).reject(&:empty?)
       @meaning = results.first
       results
     end
@@ -53,8 +54,9 @@ module DictionaryRB
     # @return [Array] containing the examples
     def examples
       @doc ||= Nokogiri::HTML(open(PREFIX + CGI::escape(@word)))
-      nodes = @doc.css('div#outer.container div.row.three_columns div.span6 div#content div.box div.inner div.example')
-      nodes.text.split("\n").reject(&:empty?)
+      #nodes = @doc.css('div#outer.container div.row.three_columns div.span6 div#content div.box div.inner div.example')
+      nodes = @doc.css('.example')
+      nodes.map(&:text).map(&:strip).reject(&:empty?)
     end
 
     # Fetches and gives synonyms for the word.
@@ -65,7 +67,7 @@ module DictionaryRB
     # @return [Array] containing synonyms for the word
     def similar_words
       @doc ||= Nokogiri::HTML(open(PREFIX + CGI::escape(@word)))
-      nodes = @doc.css('div#outer.container div.row.three_columns div.span6 div#content div.tags a')
+      nodes = @doc.css('.tags a.tag')
       nodes.map(&:text).reject(&:empty?)
     end
 
