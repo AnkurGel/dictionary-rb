@@ -77,7 +77,45 @@ module DictionaryRB
       @similar_words = @doc.css("#relatedwords .fla a").map(&:text).reject(&:empty?)
       @similar_words
     end
-    alias_method :synonyms, :similar_words
+
+    def synonyms
+      @doc ||= Nokogiri::HTML(open(PREFIX + CGI::escape(@word)))
+
+      nodes = [@doc.css('.luna-Ent .tail')]
+      (nodes ||= []).push(@doc.css(".td3n2")).flatten!
+      results = nodes.map(&:text).map do |result|
+        result.split ':'
+      end
+      syn = ""
+      results.each do |x|
+        index = x.index{|s| s =~ /Synonyms/}
+        if(index)
+          syn = x[index].split(/Synonyms/)[1]
+          break
+        end
+      end
+      @synonyms = syn.strip
+    end
+
+    def antonyms
+      @doc ||= Nokogiri::HTML(open(PREFIX + CGI::escape(@word)))
+
+      nodes = [@doc.css('.luna-Ent .tail')]
+      (nodes ||= []).push(@doc.css(".td3n2")).flatten!
+      results = nodes.map(&:text).map do |result|
+        result.split ':'
+      end
+      anty = ""
+      results.each do |x|
+        index = x.index{|s| s =~ /Antonyms/}
+        if(index)
+          anty = x[index].split(/Antonyms/)[1]
+          break
+        end
+      end
+      @antonyms = anty.strip
+    end
+
 
     def to_s
       sprintf("Free Dictionary (word: %s, meaning: %s", @word, @meaning)
