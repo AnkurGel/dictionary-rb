@@ -2,8 +2,6 @@ module DictionaryRB
 
   # Parses the page for a word at {http://dictionary.reference.com Reference Dictionary}
   # and extracts the {#meanings}, {#examples} and {#similar_words} for it.
-  # Lot of take care has been taken to prevent it from hitting the {PREFIX ENDPOINT}
-  # so as to make it quickly generate the other results, once a URL is parsed.
   class Dictionary
 
     # The associated word
@@ -11,6 +9,8 @@ module DictionaryRB
     # Endpoint for Reference Dictionary
     PREFIX = "http://dictionary.reference.com/browse/"
 
+    # Endpoint for Synonyms and Antonyms in Reference Dictionary
+    OTHER_PREFIX = "http://www.thesaurus.com/browse/"
     # @param word [String] The word for Reference Dictionary
     # @example
     #    word = DictionaryRB::Dictionary.new('question')
@@ -31,16 +31,16 @@ module DictionaryRB
     # @return [Array] containing the meanings for the word
     def meanings
       url = PREFIX + CGI::escape(@word)
-      @doc = Nokogiri::HTML(open(url))
-
-      nodes = [@doc.css('.luna-Ent .dndata')]
-      nodes = [@doc.css('.pbk .luna-Ent')] if nodes.flatten.empty?
-
-      (nodes ||= []).push(@doc.css(".td3n2")).flatten!
-      results = nodes.map(&:text).map do |result|
-        result.split ':'
-      end.map { |x| x[0].split(/[.;]/) }.flatten.map(&:strip).reject(&:empty?)
-      @meaning = results.first
+      begin
+        @doc = Nokogiri::HTML(open(url))
+      rescue Exception => e
+        # TODO
+      end
+      results = []
+      nodes = @doc && @doc.css('.def-list').first() && @doc.css('.def-list').first().css('.def-content')
+      if nodes && nodes.children
+        results = nodes.map{ |x| x.text }.map(&:strip)
+      end
       results
     end
 
@@ -63,62 +63,46 @@ module DictionaryRB
     # @return [Array] containing the examples.
     def examples
       @doc ||= Nokogiri::HTML(open(PREFIX + CGI::escape(@word)))
-      @example_results ||= @doc.css('.exsentences').map{ |x| x.text.strip }.reject(&:empty?).flatten
-      @example_results #to prevent above computations on repeated call on object
+      @example_results ||= @doc.css('#source-example-sentences .partner-example-text').map { |x| x.text() }.map(&:strip)
     end
 
     # Fetches and gives synonyms for the word
+    # @note This method will hit the {OTHER_PREFIX OTHER ENDPOINT} and will consume some time to generate the result
     # @example
-    #    word.similar_words
+    #    word.synonyms
     #    #=> => ["answer", "inquire", "question mark", "sentence",.. ]
     # @return [Array] containing similar words
-    def similar_words
-      @doc ||= Nokogiri::HTML(open(PREFIX + CGI::escape(@word)))
-      @similar_words = @doc.css("#relatedwords .fla a").map(&:text).reject(&:empty?)
-      @similar_words
-    end
-
     def synonyms
-      @doc ||= Nokogiri::HTML(open(PREFIX + CGI::escape(@word)))
-
-      nodes = [@doc.css('.luna-Ent .tail')]
-      (nodes ||= []).push(@doc.css(".td3n2")).flatten!
-      results = nodes.map(&:text).map do |result|
-        result.split ':'
+      begin
+        @doc2 ||= Nokogiri::HTML(open(OTHER_PREFIX + CGI::escape(@word)))
+      rescue Exception
+        #TODO
       end
-      syn = ""
-      results.each do |x|
-        index = x.index{|s| s =~ /Synonyms/}
-        if(index)
-          syn = x[index].split(/Synonyms/)[1]
-          break
-        end
-      end
-      @synonyms = syn.strip
+      @doc2.css('div.synonyms .relevancy-list li').text.gsub(/star/, '').split
     end
 
+    # Fetches and gives antonyms for the word
+    # @note This method will hit the {OTHER_PREFIX OTHER ENDPOINT} and will consume some time to generate the result
+    # @example
+    #    word.antonyms
+    #    #=> => ["answer", "inquire", "question mark", "sentence",.. ]
+    # @return [Array] containing similar words
     def antonyms
-      @doc ||= Nokogiri::HTML(open(PREFIX + CGI::escape(@word)))
-
-      nodes = [@doc.css('.luna-Ent .tail')]
-      (nodes ||= []).push(@doc.css(".td3n2")).flatten!
-      results = nodes.map(&:text).map do |result|
-        result.split ':'
+      begin
+        @doc2 ||= Nokogiri::HTML(open(OTHER_PREFIX + CGI::escape(@word)))
+      rescue Exception
+        #TODO
       end
-      anty = ""
-      results.each do |x|
-        index = x.index{|s| s =~ /Antonyms/}
-        if(index)
-          anty = x[index].split(/Antonyms/)[1]
-          break
-        end
-      end
-      @antonyms = anty.strip
+      @doc2.css('section.antonyms li').text.gsub(/star/, '').split
     end
-
 
     def to_s
-      sprintf("Free Dictionary (word: %s, meaning: %s", @word, @meaning)
+      sprintf("Dictionary Reference(word: %s, meaning: %s", @word, @meaning)
+    end
+
+    private
+    def initialize_doc(prefix = PREFIX)
+      
     end
   end
 end

@@ -8,8 +8,9 @@ class DictionaryRB_CLI < Thor
   option :words, :desc => "Specify multiple WORDS in succession", :type => :array
   option :file, :type => :boolean, :desc => "Pass file(s) as argument(s) instead."
   option :example, :type => :boolean, :desc => "Generate an example too."
-  option :similar, :type => :boolean, :desc => "Generate a synonym too."
+  option :synonym, :type => :boolean, :desc => "Generate a synonym too."
   option :urban, :type => :boolean, :desc => "Give meaning from Urban Dictionary instead."
+  option :multi, :type => :boolean, :desc => "Give multiple results"
   option :write, :desc => "Also write results to specified FILE", :banner => "FILE"
   def meaning(word=nil)
     if options[:urban]
@@ -24,26 +25,27 @@ class DictionaryRB_CLI < Thor
   option :words, :desc => "Specify multiple WORDS in succession", :type => :array
   option :file, :type => :boolean, :desc => "Pass file(s) as argument(s) instead."
   option :example, :type => :boolean, :desc => "Generate an example too."
-  option :similar, :type => :boolean, :desc => "Generate a synonym too."
+  option :synonym, :type => :boolean, :desc => "Generate a synonym too."
+  option :multi, :type => :boolean, :desc => "Give multiple results"
   option :write, :desc => "Write results to specified FILE", :banner => "FILE"
   def urban(word=nil)
     urban_or_dictionary_meaning(word, options, :urban)
   end
 
 
-  desc "similar WORD", "gives syonyms of word(s)"
+  desc "synonym WORD", "gives syonyms of word(s)"
   option :words, :desc => "Specify multiple WORDS in succession", :type => :array
   option :file, :type => :boolean, :desc => "Pass file(s) as arugment(s) instead."
   option :urban, :type => :boolean, :desc => "Give similar word from Urban Dictionary"
-  option :count, :type => :numeric, :desc => "Gives N similar words"
+  option :multi, :type => :boolean, :desc => "Give multiple results"
   option :write, :desc => "Write results to specified FILE", :banner => "FILE"
-  def similar(word=nil)
+  def synonym(word=nil)
     write_file = options[:write] ? File.open(File.expand_path(options[:write]), 'wb') : nil
     words = options_simplifier(word, options)
     method = options[:urban] ? :urban : :dictionary
     words.each do |word|
       obj = DictionaryRB::Word.new(word).method(method).call
-      results = obj.similar_words.shuffle.first(
+      results = obj.synonyms.shuffle.first(
           options[:count] ? options[:count] : 1)
       say "#{word} is similar to - #{results.join(', ')}"
       write_file.puts("#{word} is similar to - #{results.join(', ')}") if write_file
@@ -92,11 +94,19 @@ class DictionaryRB_CLI < Thor
     words = options_simplifier(word, options)
     words.each do |word|
       obj = DictionaryRB::Word.new(word).method(method).call
+      meanings = obj.meanings
       meaning = obj.meaning
-      example = options[:example] ? " - " + obj.examples.first : ""
-      similar = options[:similar] ? " - " + obj.similar_words.first : ""
-      say "#{word} - #{meaning}#{example}#{similar}"
-      write_file.puts("#{word} - #{meaning}#{example}#{similar}") if write_file
+      example = options[:example] ? " Example - " + obj.examples.first : ""
+      synonym = options[:synonym] ? " Synonym - " + obj.synonyms.first : ""
+      if options[:multi]
+        say "#{word}\nMeanings:"
+        meanings.first(5).each_with_index { |x, i| say "\t#{i+1} - #{x}" }
+        say "#{example}#{synonym}" if options[:example] || options[:synonym]
+      else
+        say "#{word} - #{meaning}#{example}#{synonym}"
+      end
+
+      write_file.puts("#{word} - #{meaning}#{example}#{synonym}") if write_file
     end
     write_file.close if write_file
   end
